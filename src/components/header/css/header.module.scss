@@ -2,7 +2,7 @@
     &__containerParent {
         width: 100%;
         height: 60px;
-        
+
         position: fixed;
         top: 0px;
         left: 0px;
@@ -11,6 +11,7 @@
 
         padding-left: 10px;
         padding-right: 10px;
+
         @media screen and (min-width: 1320px) {
             padding-left: 0px;
             padding-right: 0px;
@@ -38,7 +39,7 @@
 
         font-style: normal;
         font-weight: 400;
-        font-size: 24px;
+        font-size: 16px;
         line-height: 60px;
         display: flex;
         align-items: center;
@@ -47,8 +48,73 @@
 
         text-decoration: none;
 
+        @media screen and (min-width: 992px) {
+            font-size: 24px;
+        }
+
         &[darkMode=dark] {
             color: #FFFFFF;
+        }
+    }
+
+    &__cBtnDarkModeToggle {
+        &__containerParent {
+            padding-top: 7px;
+            padding-bottom: 7px;
+
+            cursor: pointer;
+            user-select: none;
+        }
+
+        &__container {
+            width: 125px;
+            height: 46px;
+
+            background: #CCCCCC;
+            border-radius: 4px;
+
+            text-align: center;
+
+            @media screen and (min-width: 992px) {
+                width: 175px;
+            }
+
+            &[darkMode=dark] {
+                background: #292929;
+            }
+        }
+
+        &__img {
+            width: 16px;
+            height: 46px;
+            object-fit: contain;
+
+            @media screen and (min-width: 992px) {
+                width: 24px;
+            }
+        }
+
+        &__txt {
+            display: inline-block;
+
+            font-family: 'Mulish';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 46px;
+
+            color: #292929;
+
+            padding-left: 8px;
+
+            @media screen and (min-width: 992px) {
+                padding-left: 16px;
+                font-size: 20px;
+            }
+
+            &[darkMode=dark] {
+                color: #FFFFFF;
+            }
         }
     }
 }

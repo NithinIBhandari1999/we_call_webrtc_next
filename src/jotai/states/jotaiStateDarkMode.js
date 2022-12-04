@@ -6,5 +6,5 @@ export const constantDarkModeList = {
 };
 
 export const jotaiStateDarkMode = atom({
-    darkMode: 'light'
+    darkMode: constantDarkModeList.dark
 });
