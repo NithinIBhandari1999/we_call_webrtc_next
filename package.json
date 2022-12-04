@@ -1,0 +1,27 @@
+{
+  "name": "we_call_webrtc_next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.2",
+    "eslint-config-next": "13.0.3",
+    "jotai": "^1.11.0",
+    "next": "13.0.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hot-toast": "^2.4.0",
+    "sass": "^1.56.1",
+    "socket.io-client": "^4.5.3",
+    "use-debounce": "^8.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.29.0",
+    "eslint-plugin-react": "^7.31.11"
+  }
+}
