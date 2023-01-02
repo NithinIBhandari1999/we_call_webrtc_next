@@ -5,10 +5,14 @@ We call
 
 Step 1: clone this repo.
 Step 2: Set env variable.
-Step 3: Run command npm install
-Step 4: Run command npm run dev
-
-
+Step 3: Run command 
+```
+npm install
+```
+Step 4: Run command 
+```
+npm run dev
+```
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

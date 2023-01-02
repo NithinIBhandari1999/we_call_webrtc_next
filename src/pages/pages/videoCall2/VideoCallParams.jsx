@@ -8,8 +8,6 @@ const VideoCallParams = (props) => {
 
     const [roomId, setRoomId] = useState('');
 
-    const [deviceId, setDeviceId] = useState('');
-
     // -----
     // useEffect
     useEffect(() => {
@@ -20,15 +18,10 @@ const VideoCallParams = (props) => {
         }
     }, [router.isReady, router.query]);
 
-    useEffect(() => {
-        let randomDeviceId = Math.floor(Math.random() * 1000000000);
-        setDeviceId(`${randomDeviceId}`);
-    }, []);
-
     return (
         <Fragment>
-            {router.isReady && roomId !== '' && deviceId !== '' && (
-                <VideoCall {...props} roomId={roomId} deviceId={deviceId} />
+            {router.isReady && roomId !== '' && (
+                <VideoCall {...props} roomId={roomId} />
             )}
         </Fragment>
     );

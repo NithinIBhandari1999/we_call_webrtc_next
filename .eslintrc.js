@@ -30,6 +30,7 @@ module.exports = {
             'warn',
             'always'
         ],
+        'no-unused-vars': ['warn'],
         '@next/next/no-img-element': 'off'
     }
 };

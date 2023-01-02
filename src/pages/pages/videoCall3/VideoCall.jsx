@@ -89,7 +89,7 @@ const VideoCall = (props) => {
 
                         setUserList([]);
 
-                        sleep(1000);
+                        sleep(100);
 
                         setUserList(payload.userList);
                     } catch (error) {
@@ -115,7 +115,6 @@ const VideoCall = (props) => {
                     User lists:
                     <div>{userList.length}</div>
                     <pre>{JSON.stringify(userList, null, 2)}</pre>
-                    <pre>Current Device Id: {deviceId}</pre>
                 </div>
                 
                 {userList.map((user) => {
@@ -136,7 +135,7 @@ const VideoCall = (props) => {
 
                                 localStream={localStream}
                                 roomId={roomId}
-                                deviceId={user.deviceId}
+                                deviceId={deviceId}
                                 userInfo={user}
                             />
                         </div>
