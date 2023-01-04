@@ -21,6 +21,8 @@ const VideoCall = (props) => {
 
     const [localStream, setLocalStream] = useState(null);
 
+    const [curSocketId, setCurSocketId] = useState('');
+
     // -----
     // useState
 
@@ -54,14 +56,12 @@ const VideoCall = (props) => {
         try {
             refSocket.current = await initSocket();
 
-            await sleep(100);
+            await sleep(200);
 
-            // create local stream
-            // const tempLocalStream = await navigator.mediaDevices.getUserMedia({
-            //     video: true,
-            //     audio: true,
-            // });
-            // setLocalStream(tempLocalStream);
+            let tempSocketId = refSocket.current?.id;
+            if (typeof tempSocketId === 'string') {
+                setCurSocketId(tempSocketId);
+            }
 
             await sleep(100);
 
@@ -118,38 +118,47 @@ const VideoCall = (props) => {
                     <pre>Current Device Id: {curDeviceId}</pre>
                 </div>
 
-                <div>
-                    {refSocket && userList.length > 1 && (
-                        <VideoSendStreamAll
-                            refSocket={refSocket}
-                            userList={userList}
-                            localStream={localStream}
-                            curDeviceId={curDeviceId}
-                            curRoomId={curRoomId}
-                        />
-                    )}
-                </div>
+                {curSocketId !== '' && (
+                    <div>
+                        {refSocket && userList.length > 1 && (
+                            <VideoSendStreamAll
+                                refSocket={refSocket}
+                                userList={userList}
+                                localStream={localStream}
+                                curDeviceId={curDeviceId}
+                                curRoomId={curRoomId}
+                                socketIdLocal={curSocketId}
+                            />
+                        )}
+                    </div>
+                )}
 
-                <div className="row">
-                    {userList.map((user) => {
-                        if (user.deviceId === curDeviceId) {
-                            return <Fragment key={user.deviceId} />;
-                        }
+                {curSocketId !== '' && (
+                    <div className="row">
+                        {userList.map((userInfo) => {
+                            if (userInfo.deviceId === curDeviceId) {
+                                return <Fragment key={userInfo.deviceId} />;
+                            }
 
-                        return (
-                            <div
-                                className="col-12 col-md-4 col-lg-3"
-                                key={user.deviceId}
-                            >
-                                <VideoItem
-                                    refSocket={refSocket}
-                                    curRoomId={curRoomId}
-                                    curDeviceId={user.deviceId}
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
+                            return (
+                                <div
+                                    className="col-12 col-md-4 col-lg-3"
+                                    key={userInfo.deviceId}
+                                >
+                                    <VideoItem
+                                        refSocket={refSocket}
+                                        curRoomId={curRoomId}
+                                        curSocketId={curSocketId}
+                                        curDeviceId={curDeviceId}
+                                        socketIdLocal={curSocketId}
+                                        socketIdRemote={userInfo.socketId}
+                                        userInfo={userInfo}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -6,11 +6,27 @@ import constantSocketActions from '../../../constant/constantSocket/constantSock
 
 import constantIceServers from '../../../constant/constantIceServers';
 
-const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
+const VideoItem = ({
+    refSocket,
+    curRoomId,
+    curSocketId,
+    curDeviceId,
+    socketIdLocal,
+    socketIdRemote,
+    userInfo,
+}) => {
     // -----
     // useStates
-    const [answer, setAnswer] = useState(null);
+    const [answer, setAnswer] = useState({
+        answer: '',
+        socketIdLocal: '',
+        socketIdRemote: '',
+        curVideoStreamId: '',
+    });
     const [debounceAnswer] = useDebounce(answer, 250);
+    const [connectionState, setConnectionState] = useState('');
+
+    const [timer, setTimer] = useState(0);
 
     // -----
     // useRefs
@@ -42,6 +58,25 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debounceAnswer]);
 
+    useEffect(() => {
+        let customTimer = setInterval(() => {
+            setTimer((timer) => {
+                return timer + 1;
+            });
+        }, 1000);
+
+        return () => {
+            clearInterval(customTimer);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (timer % 4 === 0) {
+            sendStreamRequest();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timer]);
+
     // -----
     // functions
     const sleep = (ms) => {
@@ -60,13 +95,24 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
                 constantIceServers,
             });
 
+            refPeerConnection.current.onconnectionstatechange = (e) => {
+                console.log('onconnectionstatechange', {
+                    e,
+                    peerConnection: refPeerConnection.current,
+                });
+
+                let tempConnectionState =
+                    refPeerConnection?.current?.connectionState;
+                if (typeof tempConnectionState === 'string') {
+                    setConnectionState(tempConnectionState);
+                }
+            };
+
             let peerConnection = refPeerConnection.current;
 
             refRemoteStream.current = new MediaStream();
 
             refUserRemoteVideo.current.srcObject = refRemoteStream.current;
-
-            console.log(refUserRemoteVideo);
 
             peerConnection.ontrack = (event) => {
                 console.log({
@@ -90,20 +136,71 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
         try {
             let socketObj = refSocket.current;
 
-            socketObj.on(constantSocketActions.SEND_OFFER, (args) => {
-                console.log('on: ', constantSocketActions.SEND_OFFER);
-                let argOffer = args.offer;
+            sendStreamRequest();
 
-                if (typeof argOffer === 'string') {
-                    console.log(args);
-                    let argOfferObj = JSON.parse(argOffer);
-                    createAnswer({
-                        argOfferObj,
-                        socketIdLocal: args.socketIdLocal,
-                        socketIdRemote: args.socketIdRemote,
-                        curVideoStreamId: args.curVideoStreamId,
+            socketObj.on(constantSocketActions.SEND_OFFER, (args) => {
+                try {
+                    console.log('on: ', constantSocketActions.SEND_OFFER, args);
+
+                    // curVideoStreamId
+                    // offer
+                    // socketIdLocal
+                    // socketIdRemote
+
+                    console.log(constantSocketActions.SEND_OFFER, {
+                        args,
+                        socketIdLocal,
+                        userInfo,
+                        c1: socketIdLocal === args.socketIdLocal,
+                        c2: userInfo.socketId === args.socketIdRemote,
                     });
+
+                    if (
+                        socketIdLocal === args.socketIdLocal &&
+                        userInfo.socketId === args.socketIdRemote
+                    ) {
+                        // valid
+                        console.log('Valid SEND_OFFER');
+                    } else {
+                        // not valid
+                        console.log('Invalid SEND_OFFER');
+                        return;
+                    }
+
+                    console.log('Valid SEND_OFFER');
+
+                    let argOffer = args.offer;
+
+                    if (typeof argOffer === 'string') {
+                        let argOfferObj = JSON.parse(argOffer);
+                        createAnswer({
+                            argOfferObj,
+                            socketIdLocal: args.socketIdLocal,
+                            socketIdRemote: args.socketIdRemote,
+                            curVideoStreamId: args.curVideoStreamId,
+                        });
+                    }
+                } catch (error) {
+                    console.error(error, 'SEND_OFFER');
                 }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const sendStreamRequest = () => {
+        try {
+            if(connectionState === 'connected'){
+                // already connected so dont reestablish
+                return;
+            }
+
+            let socketObj = refSocket.current;
+
+            socketObj.emit(constantSocketActions.REQUEST_OFFER, {
+                socketIdLocal,
+                socketIdRemote,
             });
         } catch (error) {
             console.error(error);
@@ -169,8 +266,14 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
     return (
         <div className="p-2">
             <div className="border p-2">
+                <div>{timer}</div>
                 <div>Current Room Id: {curRoomId}</div>
                 <div>Current Device Id: {curDeviceId}</div>
+                <div>Connection State: {connectionState}</div>
+                <div>Current Socket Id: {socketIdLocal}</div>
+                <div>
+                    User Info: <pre>{JSON.stringify(userInfo, null, 2)}</pre>
+                </div>
 
                 <div>
                     <video

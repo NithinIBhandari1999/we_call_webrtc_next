@@ -12,6 +12,7 @@ const VideoSendStreamAll = ({
     curDeviceId,
     curRoomId,
     userList,
+    socketIdLocal
 }) => {
     // -----
     // code
@@ -106,6 +107,8 @@ const VideoSendStreamAll = ({
                                 curVideoStreamId={curVideoStreamId}
                                 userList={userList}
                                 userInfo={userInfo}
+
+                                socketIdLocal={socketIdLocal}
                             />
                         </div>
                     );
