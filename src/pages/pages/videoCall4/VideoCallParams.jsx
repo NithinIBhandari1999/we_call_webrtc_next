@@ -28,7 +28,7 @@ const VideoCallParams = (props) => {
     return (
         <Fragment>
             {router.isReady && roomId !== '' && deviceId !== '' && (
-                <VideoCall {...props} curRoomId={roomId} curDeviceId={deviceId} />
+                <VideoCall {...props} roomId={roomId} deviceId={deviceId} />
             )}
         </Fragment>
     );

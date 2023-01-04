@@ -1,17 +1,10 @@
-import { useRef, useEffect, useState } from 'react';
-
-import { useDebounce } from 'use-debounce';
+import { useRef, useEffect } from 'react';
 
 import constantSocketActions from '../../../constant/constantSocket/constantSocketActions';
 
 import constantIceServers from '../../../constant/constantIceServers';
 
-const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
-    // -----
-    // useStates
-    const [answer, setAnswer] = useState(null);
-    const [debounceAnswer] = useDebounce(answer, 250);
-
+const VideoItem = ({ refSocket, roomId, deviceId }) => {
     // -----
     // useRefs
     const refUseEffect = useRef(true);
@@ -34,13 +27,6 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    useEffect(() => {
-        if (debounceAnswer) {
-            sendAnswer();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debounceAnswer]);
 
     // -----
     // functions
@@ -70,10 +56,10 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
 
             peerConnection.ontrack = (event) => {
                 console.log({
-                    event,
+                    event
                 });
                 event.streams[0].getTracks().forEach((track) => {
-                    console.log({ track });
+                    console.log({track});
                     refRemoteStream.current.addTrack(track);
                 });
             };
@@ -95,13 +81,12 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
                 let argOffer = args.offer;
 
                 if (typeof argOffer === 'string') {
-                    console.log(args);
+                    console.log(args)
                     let argOfferObj = JSON.parse(argOffer);
                     createAnswer({
                         argOfferObj,
                         socketIdLocal: args.socketIdLocal,
                         socketIdRemote: args.socketIdRemote,
-                        curVideoStreamId: args.curVideoStreamId,
                     });
                 }
             });
@@ -114,9 +99,10 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
         argOfferObj: offer,
         socketIdLocal,
         socketIdRemote,
-        curVideoStreamId,
     }) => {
         try {
+            let socketObj = refSocket.current;
+
             let peerConnection = refPeerConnection.current;
 
             peerConnection.onicecandidate = async (event) => {
@@ -126,17 +112,12 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
                         let jsonLocalDescription = JSON.stringify(
                             peerConnection?.localDescription
                         );
-
-                        console.log(
-                            'Type: emit - ',
-                            constantSocketActions.SEND_ANSWER
-                        );
-
-                        setAnswer({
+    
+                        console.log('Type: emit - ', constantSocketActions.SEND_ANSWER);
+                        socketObj.emit(constantSocketActions.SEND_ANSWER, {
                             answer: jsonLocalDescription,
                             socketIdLocal,
-                            socketIdRemote,
-                            curVideoStreamId,
+                            socketIdRemote
                         });
                     }
                 } catch (error) {
@@ -148,19 +129,9 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
 
             let answer = await peerConnection.createAnswer();
             console.log({
-                answer,
+                answer
             });
             await peerConnection.setLocalDescription(answer);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const sendAnswer = async () => {
-        try {
-            let socketObj = refSocket.current;
-
-            socketObj.emit(constantSocketActions.SEND_ANSWER, answer);
         } catch (error) {
             console.error(error);
         }
@@ -169,8 +140,8 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
     return (
         <div className="p-2">
             <div className="border p-2">
-                <div>Current Room Id: {curRoomId}</div>
-                <div>Current Device Id: {curDeviceId}</div>
+                <div>Room Id: {roomId}</div>
+                <div>Device Id: {deviceId}</div>
 
                 <div>
                     <video
@@ -180,7 +151,7 @@ const VideoItem = ({ refSocket, curRoomId, curDeviceId }) => {
                         style={{
                             width: '100%',
                             height: '200px',
-                            backgroundColor: 'black',
+                            backgroundColor: 'black'
                         }}
                     ></video>
                 </div>

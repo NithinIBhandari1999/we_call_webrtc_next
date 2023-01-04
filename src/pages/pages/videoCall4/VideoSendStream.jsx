@@ -8,19 +8,22 @@ import { useDebounce } from 'use-debounce';
 const VideoSendStream = ({
     refSocket,
     curDeviceId,
-    curRoomId,
-    curVideoStreamId,
     userList,
+    roomId,
+    deviceId,
     userInfo,
 }) => {
     // -----
     // code
+
     const refUserLocalVideo = useRef(null);
 
     // -----
     // useStates
     const [offerString, setOfferString] = useState('');
-    const [debounceOfferString] = useDebounce(offerString, 250);
+    const [debounceOfferString] = useDebounce(offerString, 100);
+
+    const [timer, setTimer] = useState(0);
 
     // -----
     // useRefs
@@ -42,9 +45,31 @@ const VideoSendStream = ({
     }, []);
 
     useEffect(() => {
+        console.log('debounceOfferString');
         sendOfferToOtherUsers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debounceOfferString]);
+
+    useEffect(() => {
+        setInterval(() => {
+            setTimer((props) => {
+                return props + 1;
+            });
+        }, 1000);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        console.log({
+            timer,
+            timerBool: timer % 5 === 0,
+        });
+
+        if (timer % 5 === 0) {
+            sendOfferToOtherUsers();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timer]);
 
     // -----
     // functions
@@ -69,10 +94,12 @@ const VideoSendStream = ({
 
             const localStream = await navigator.mediaDevices.getUserMedia({
                 video: true,
-                audio: false,
+                audio: true,
             });
 
             refUserLocalVideo.current.srcObject = localStream;
+
+            console.log( 'refUserLocalVideo.srcObject: ', refUserLocalVideo.current);
 
             localStream.getTracks().forEach((track) => {
                 peerConnection.addTrack(track, localStream);
@@ -96,11 +123,10 @@ const VideoSendStream = ({
                 console.log('on: ', constantSocketActions.SEND_ANSWER);
 
                 let argAnswer = args.answer;
-                let tempCurVideoStreamId = args.curVideoStreamId;
 
                 if (typeof argAnswer === 'string') {
                     let argAnswerObj = JSON.parse(argAnswer);
-                    addAnswer(argAnswerObj, tempCurVideoStreamId);
+                    addAnswer(argAnswerObj);
                 }
             });
         } catch (error) {
@@ -180,7 +206,6 @@ const VideoSendStream = ({
             socketObj.emit(constantSocketActions.SEND_OFFER, {
                 socketIdLocal: curUserInfo[0].socketId,
                 socketIdRemote: userInfo.socketId,
-                curVideoStreamId,
                 offer: offer,
             });
         } catch (error) {
@@ -188,22 +213,9 @@ const VideoSendStream = ({
         }
     };
 
-    const addAnswer = async (answer, tempCurVideoStreamId) => {
+    const addAnswer = async (answer) => {
         try {
             console.log('STEP: Add answer');
-            if(tempCurVideoStreamId !== curVideoStreamId) {
-                // not valid
-                console.log('add answer not equal: ', {
-                    tempCurVideoStreamId,
-                    curVideoStreamId
-                });
-                return;
-            } else {
-                console.log('add answer equal: ', {
-                    tempCurVideoStreamId,
-                    curVideoStreamId
-                });
-            }
 
             let peerConnection = refPeerConnection.current;
 
@@ -220,10 +232,10 @@ const VideoSendStream = ({
             <div className="p-3 border">
                 <div>Send Video Stream</div>
                 <div>
-                    <div>Current Room Id: {curRoomId}</div>
-                    <div>Current Device Id: {curDeviceId}</div>
-                    <div>Current Video Stream Id: {curVideoStreamId}</div>
-                    <div>Offer String: {offerString.length}</div>
+                    <div>Room Id: {roomId}</div>
+                    <div>Device Id: {deviceId}</div>
+                    <div>offerString: {offerString.length}</div>
+                    <div>Timer: {timer}</div>
                 </div>
 
                 <div>

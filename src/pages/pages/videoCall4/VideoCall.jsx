@@ -5,10 +5,10 @@ import { initSocket } from '../../../config/socket';
 import constantSocketActions from '../../../constant/constantSocket/constantSocketActions';
 
 import VideoItem from './VideoItem';
-import VideoSendStreamAll from './VideoSendStreamAll';
+import VideoSendStream from './VideoSendStream';
 
 const VideoCall = (props) => {
-    const curRoomId = props.curRoomId;
+    const curRoomId = props.roomId;
     const curDeviceId = props.curDeviceId;
 
     // -----
@@ -57,14 +57,14 @@ const VideoCall = (props) => {
             await sleep(100);
 
             // create local stream
-            // const tempLocalStream = await navigator.mediaDevices.getUserMedia({
-            //     video: true,
-            //     audio: true,
-            // });
-            // setLocalStream(tempLocalStream);
-
+            const tempLocalStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true,
+            });
+            setLocalStream(tempLocalStream);
+            
             await sleep(100);
-
+            
             listenConnection();
         } catch (error) {
             console.error(error);
@@ -117,18 +117,31 @@ const VideoCall = (props) => {
                     <pre>{JSON.stringify(userList, null, 2)}</pre>
                     <pre>Current Device Id: {curDeviceId}</pre>
                 </div>
+                
+                {userList.map((user) => {
+                    if (user.deviceId === curDeviceId) {
+                        return <Fragment key={user.deviceId} />;
+                    }
 
-                <div>
-                    {refSocket && userList.length > 1 && (
-                        <VideoSendStreamAll
-                            refSocket={refSocket}
-                            userList={userList}
-                            localStream={localStream}
-                            curDeviceId={curDeviceId}
-                            curRoomId={curRoomId}
-                        />
-                    )}
-                </div>
+                    return (
+                        <div
+                            className="col-12 col-md-4 col-lg-3"
+                            key={user.deviceId}
+                        >
+                            <VideoSendStream
+                                refSocket={refSocket}
+
+                                userList={userList}
+                                curDeviceId={curDeviceId}
+
+                                localStream={localStream}
+                                roomId={curRoomId}
+                                deviceId={user.deviceId}
+                                userInfo={user}
+                            />
+                        </div>
+                    );
+                })}
 
                 <div className="row">
                     {userList.map((user) => {
@@ -143,8 +156,9 @@ const VideoCall = (props) => {
                             >
                                 <VideoItem
                                     refSocket={refSocket}
-                                    curRoomId={curRoomId}
-                                    curDeviceId={user.deviceId}
+
+                                    roomId={curRoomId}
+                                    deviceId={user.deviceId}
                                 />
                             </div>
                         );
