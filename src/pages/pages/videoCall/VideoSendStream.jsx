@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 
 import constantSocketActions from '../../../constant/constantSocket/constantSocketActions';
 
@@ -8,13 +8,11 @@ import { useDebounce } from 'use-debounce';
 const VideoSendStream = ({
     refSocket,
     socketIdLocal,
-    curRoomId,
     curVideoStreamId,
     userInfo,
 }) => {
     // -----
     // code
-    const refUserLocalVideo = useRef(null);
 
     // -----
     // useStates
@@ -27,7 +25,6 @@ const VideoSendStream = ({
 
     const [offerString, setOfferString] = useState('');
     const [debounceOfferString] = useDebounce(offerString, 250);
-    const [connectionState, setConnectionState] = useState('');
 
     // -----
     // useRefs
@@ -77,19 +74,6 @@ const VideoSendStream = ({
                 constantIceServers,
             });
 
-            refPeerConnection.current.onconnectionstatechange = (e) => {
-                console.log('onconnectionstatechange', {
-                    e,
-                    peerConnection: refPeerConnection.current,
-                });
-
-                let tempConnectionState =
-                    refPeerConnection?.current?.connectionState;
-                if (typeof tempConnectionState === 'string') {
-                    setConnectionState(tempConnectionState);
-                }
-            };
-
             let peerConnection = refPeerConnection.current;
 
             console.log({
@@ -100,8 +84,6 @@ const VideoSendStream = ({
                 video: true,
                 audio: false,
             });
-
-            refUserLocalVideo.current.srcObject = localStream;
 
             localStream.getTracks().forEach((track) => {
                 peerConnection.addTrack(track, localStream);
@@ -283,48 +265,7 @@ const VideoSendStream = ({
         }
     };
 
-    return (
-        <div className="p-3">
-            <div className="p-3 border">
-                <div>Send Video Stream</div>
-                <div>
-                    <div>Current Room Id: {curRoomId}</div>
-                    <div>Current Video Stream Id: {curVideoStreamId}</div>
-                    <div>Current Socket Id: {socketIdLocal}</div>
-                    <div>
-                        User Info:{' '}
-                        <pre>{JSON.stringify(userInfo, null, 2)}</pre>
-                    </div>
-                    <div>Offer String: {offerString.length}</div>
-                    <div>Connection State: {connectionState}</div>
-                    <div>
-                        <pre>
-                            {JSON.stringify(debounceSendOfferCallFunc, null, 2)}
-                        </pre>
-                    </div>
-                </div>
-
-                <div>
-                    <video
-                        ref={refUserLocalVideo}
-                        autoPlay
-                        playsInline
-                        style={{
-                            width: '100%',
-                            height: '200px',
-                            backgroundColor: 'black',
-                        }}
-                    ></video>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => createOffer()}
-                    >
-                        Send Offer
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+    return <Fragment />;
 };
 
 export default VideoSendStream;

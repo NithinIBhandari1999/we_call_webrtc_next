@@ -6,6 +6,7 @@ import constantSocketActions from '../../../constant/constantSocket/constantSock
 
 import VideoItem from './VideoItem';
 import VideoSendStreamAll from './VideoSendStreamAll';
+import VideoSelf from './VideoSelf';
 
 const VideoCall = (props) => {
     const curRoomId = props.curRoomId;
@@ -56,7 +57,7 @@ const VideoCall = (props) => {
         try {
             refSocket.current = await initSocket();
 
-            await sleep(200);
+            await sleep(1000);
 
             let tempSocketId = refSocket.current?.id;
             if (typeof tempSocketId === 'string') {
@@ -104,35 +105,9 @@ const VideoCall = (props) => {
 
     // -----
     // renderFunctions
-
-    return (
-        <div>
-            <div className="container py-5">
-                <h1>Homepage - {curRoomId}</h1>
-
-                {/* p */}
-                <div>
-                    User lists:
-                    <div>{userList.length}</div>
-                    <pre>{JSON.stringify(userList, null, 2)}</pre>
-                    <pre>Current Device Id: {curDeviceId}</pre>
-                </div>
-
-                {curSocketId !== '' && (
-                    <div>
-                        {refSocket && userList.length > 1 && (
-                            <VideoSendStreamAll
-                                refSocket={refSocket}
-                                userList={userList}
-                                localStream={localStream}
-                                curDeviceId={curDeviceId}
-                                curRoomId={curRoomId}
-                                socketIdLocal={curSocketId}
-                            />
-                        )}
-                    </div>
-                )}
-
+    const renderVideoList = () => {
+        return (
+            <div>
                 {curSocketId !== '' && (
                     <div className="row">
                         {userList.map((userInfo) => {
@@ -142,7 +117,7 @@ const VideoCall = (props) => {
 
                             return (
                                 <div
-                                    className="col-12 col-md-4 col-lg-3"
+                                    className="col-4 col-md-4 col-lg-4"
                                     key={userInfo.deviceId}
                                 >
                                     <VideoItem
@@ -158,7 +133,43 @@ const VideoCall = (props) => {
                             );
                         })}
                     </div>
+                )}       
+            </div>
+        )
+    }
+
+    return (
+        <div>
+            <div className="container py-5">
+                {curSocketId !== '' && (
+                    <div>
+                        {refSocket && userList.length > 1 && (
+                            <VideoSendStreamAll
+                                refSocket={refSocket}
+                                userList={userList}
+                                localStream={localStream}
+                                curDeviceId={curDeviceId}
+                                curRoomId={curRoomId}
+                                socketIdLocal={curSocketId}
+                            />
+                        )}
+                    </div>
                 )}
+
+                <div>
+                    <div className="row">
+                        <div className="col-12 col-md-8">
+                            {renderVideoList()}
+                        </div>
+                        <div className="col-12 col-md-4">
+                            <VideoSelf />
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    
+                </div>
             </div>
         </div>
     );

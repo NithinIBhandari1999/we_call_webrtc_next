@@ -8,9 +8,6 @@ import constantIceServers from '../../../constant/constantIceServers';
 
 const VideoItem = ({
     refSocket,
-    curRoomId,
-    curSocketId,
-    curDeviceId,
     socketIdLocal,
     socketIdRemote,
     userInfo,
@@ -140,21 +137,6 @@ const VideoItem = ({
 
             socketObj.on(constantSocketActions.SEND_OFFER, (args) => {
                 try {
-                    console.log('on: ', constantSocketActions.SEND_OFFER, args);
-
-                    // curVideoStreamId
-                    // offer
-                    // socketIdLocal
-                    // socketIdRemote
-
-                    console.log(constantSocketActions.SEND_OFFER, {
-                        args,
-                        socketIdLocal,
-                        userInfo,
-                        c1: socketIdLocal === args.socketIdLocal,
-                        c2: userInfo.socketId === args.socketIdRemote,
-                    });
-
                     if (
                         socketIdLocal === args.socketIdLocal &&
                         userInfo.socketId === args.socketIdRemote
@@ -166,8 +148,6 @@ const VideoItem = ({
                         console.log('Invalid SEND_OFFER');
                         return;
                     }
-
-                    console.log('Valid SEND_OFFER');
 
                     let argOffer = args.offer;
 
@@ -266,15 +246,6 @@ const VideoItem = ({
     return (
         <div className="p-2">
             <div className="border p-2">
-                <div>{timer}</div>
-                <div>Current Room Id: {curRoomId}</div>
-                <div>Current Device Id: {curDeviceId}</div>
-                <div>Connection State: {connectionState}</div>
-                <div>Current Socket Id: {socketIdLocal}</div>
-                <div>
-                    User Info: <pre>{JSON.stringify(userInfo, null, 2)}</pre>
-                </div>
-
                 <div>
                     <video
                         ref={refUserRemoteVideo}
